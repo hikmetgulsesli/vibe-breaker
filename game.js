@@ -2,266 +2,8 @@
 // ===================================
 
 // ============================================================
-// GAME STATE MACHINE
-// ============================================================
-
-/**
- * @readonly
- * @enum {string}
- */
-const GameState = Object.freeze({
-    START: 'START',
-    PLAYING: 'PLAYING',
-    GAME_OVER: 'GAME_OVER'
-});
-
-/**
- * State transition rules
- * @type {Object.<GameState, GameState[]>}
- */
-const STATE_TRANSITIONS = Object.freeze({
-    [GameState.START]: [GameState.PLAYING],
-    [GameState.PLAYING]: [GameState.GAME_OVER],
-    [GameState.GAME_OVER]: [GameState.START, GameState.PLAYING]
-});
-
-/**
- * Game State Machine
- * Manages game state transitions and validation
- */
-class StateMachine {
-    constructor() {
-        /** @type {GameState} */
-        this._state = GameState.START;
-        /** @type {number} */
-        this._stateStartTime = performance.now();
-        /** @type {Map<GameState, Function[]>} */
-        this._listeners = new Map();
-        /** @type {Map<string, Function>} */
-        this._transitionListeners = new Map();
-    }
-
-    /**
-     * Get current state
-     * @returns {GameState}
-     */
-    get state() {
-        return this._state;
-    }
-
-    /**
-     * Get time spent in current state (ms)
-     * @returns {number}
-     */
-    get stateDuration() {
-        return performance.now() - this._stateStartTime;
-    }
-
-    /**
-     * Check if transition is valid
-     * @param {GameState} fromState
-     * @param {GameState} toState
-     * @returns {boolean}
-     */
-    isValidTransition(fromState, toState) {
-        const allowedTransitions = STATE_TRANSITIONS[fromState];
-        return allowedTransitions && allowedTransitions.includes(toState);
-    }
-
-    /**
-     * Transition to new state
-     * @param {GameState} newState
-     * @returns {boolean} - true if transition succeeded
-     */
-    transition(newState) {
-        if (!this.isValidTransition(this._state, newState)) {
-            console.warn(`Invalid state transition: ${this._state} -> ${newState}`);
-            return false;
-        }
-
-        const previousState = this._state;
-        this._state = newState;
-        this._stateStartTime = performance.now();
-
-        // Notify transition listeners
-        const transitionKey = `${previousState}->${newState}`;
-        const transitionListener = this._transitionListeners.get(transitionKey);
-        if (transitionListener) {
-            transitionListener(previousState, newState);
-        }
-
-        // Notify state listeners
-        const listeners = this._listeners.get(newState) || [];
-        listeners.forEach(callback => callback(newState, previousState));
-
-        return true;
-    }
-
-    /**
-     * Add listener for state entry
-     * @param {GameState} state
-     * @param {Function} callback
-     */
-    onEnter(state, callback) {
-        if (!this._listeners.has(state)) {
-            this._listeners.set(state, []);
-        }
-        this._listeners.get(state).push(callback);
-    }
-
-    /**
-     * Add listener for specific transition
-     * @param {GameState} fromState
-     * @param {GameState} toState
-     * @param {Function} callback
-     */
-    onTransition(fromState, toState, callback) {
-        const key = `${fromState}->${toState}`;
-        this._transitionListeners.set(key, callback);
-    }
-
-    /**
-     * Check if current state matches
-     * @param {GameState} state
-     * @returns {boolean}
-     */
-    is(state) {
-        return this._state === state;
-    }
-}
-
-// ============================================================
-// GAME LOOP WITH DELTA TIME
-// ============================================================
-
-/**
- * Game Loop Manager
- * Handles requestAnimationFrame with delta time calculation
- */
-class GameLoop {
-    constructor() {
-        /** @type {number|null} */
-        this._animationFrameId = null;
-        /** @type {number} */
-        this._lastTimestamp = 0;
-        /** @type {number} */
-        this._deltaTime = 0;
-        /** @type {number} */
-        this._fps = 0;
-        /** @type {number} */
-        this._frameCount = 0;
-        /** @type {number} */
-        this._fpsUpdateTime = 0;
-        /** @type {Function|null} */
-        this._updateCallback = null;
-        /** @type {Function|null} */
-        this._renderCallback = null;
-        /** @type {boolean} */
-        this._isRunning = false;
-        /** @type {number} */
-        this._targetFPS = 60;
-        /** @type {number} */
-        this._targetFrameTime = 1000 / 60;
-    }
-
-    /**
-     * Get current delta time in seconds
-     * @returns {number}
-     */
-    get deltaTime() {
-        return this._deltaTime;
-    }
-
-    /**
-     * Get current FPS
-     * @returns {number}
-     */
-     get fps() {
-        return this._fps;
-    }
-
-    /**
-     * Set update callback
-     * @param {Function} callback - receives deltaTime in seconds
-     */
-    onUpdate(callback) {
-        this._updateCallback = callback;
-    }
-
-    /**
-     * Set render callback
-     * @param {Function} callback
-     */
-    onRender(callback) {
-        this._renderCallback = callback;
-    }
-
-    /**
-     * Start the game loop
-     */
-    start() {
-        if (this._isRunning) return;
-        this._isRunning = true;
-        this._lastTimestamp = performance.now();
-        this._fpsUpdateTime = this._lastTimestamp;
-        this._frameCount = 0;
-        this._animationFrameId = requestAnimationFrame((timestamp) => this._loop(timestamp));
-    }
-
-    /**
-     * Stop the game loop
-     */
-    stop() {
-        this._isRunning = false;
-        if (this._animationFrameId !== null) {
-            cancelAnimationFrame(this._animationFrameId);
-            this._animationFrameId = null;
-        }
-    }
-
-    /**
-     * Main loop function
-     * @param {number} timestamp
-     * @private
-     */
-    _loop(timestamp) {
-        if (!this._isRunning) return;
-
-        // Calculate delta time
-        this._deltaTime = (timestamp - this._lastTimestamp) / 1000;
-        this._lastTimestamp = timestamp;
-
-        // Cap delta time to prevent large jumps (e.g., after tab switch)
-        const maxDeltaTime = 0.1; // 100ms max
-        if (this._deltaTime > maxDeltaTime) {
-            this._deltaTime = maxDeltaTime;
-        }
-
-        // Calculate FPS
-        this._frameCount++;
-        if (timestamp - this._fpsUpdateTime >= 1000) {
-            this._fps = this._frameCount;
-            this._frameCount = 0;
-            this._fpsUpdateTime = timestamp;
-        }
-
-        // Update
-        if (this._updateCallback) {
-            this._updateCallback(this._deltaTime);
-        }
-
-        // Render
-        if (this._renderCallback) {
-            this._renderCallback();
-        }
-
-        // Schedule next frame
-        this._animationFrameId = requestAnimationFrame((t) => this._loop(t));
-    }
-}
-
-// ============================================================
 // DESIGN TOKENS - Colors, Typography, Spacing
+// From Stitch design-tokens.css and PRD Section 5.1
 // ============================================================
 
 /** @type {Object} Design token colors */
@@ -277,7 +19,7 @@ const TOKENS = {
         backgroundDark: '#0f172a',
         backgroundGradientStart: '#1a1a2e',
         backgroundGradientEnd: '#16213e',
-        backgroundOverlay: 'rgba(0, 0, 0, 0.8)',
+        backgroundOverlay: 'rgba(0, 0, 0, 0.7)',
 
         // Surface colors
         surfaceDark: '#221110',
@@ -285,8 +27,8 @@ const TOKENS = {
 
         // Text colors
         textPrimary: '#ffffff',
-        textSecondary: '#94a3b8',
-        textMuted: '#64748b',
+        textSecondary: '#94a3b8', // slate-400
+        textMuted: '#64748b', // slate-500
 
         // Game-specific colors
         ground: '#0f3460',
@@ -334,6 +76,7 @@ const TOKENS = {
 
 // ============================================================
 // GAME CONSTANTS - Physics, Dimensions, Gameplay Parameters
+// From PRD Section 6
 // ============================================================
 
 /** @type {Object} Canvas dimensions */
@@ -369,7 +112,7 @@ const CHARACTER = {
 const OBSTACLE = {
     width: 30,
     minGap: 300,
-    heights: [40, 60, 80],
+    heights: [40, 60, 80], // Small, Medium, Tall
     colors: {
         start: '#533483',
         end: '#7952b3'
@@ -390,8 +133,8 @@ const SPEED = {
 /** @type {Object} Background parallax settings */
 const PARALLAX = {
     layers: [
-        { speed: 0.5, color: '#0f1525' },
-        { speed: 1, color: '#0a1a2e' }
+        { speed: 0.5, color: '#0f1525' }, // Far layer (mountains)
+        { speed: 1, color: '#0a1a2e' }    // Near layer (ground details)
     ],
     mountainCount: 3,
     detailCount: 4,
@@ -412,6 +155,29 @@ const STORAGE = {
 };
 
 // ============================================================
+// DERIVED CONSTANTS (for backward compatibility)
+// ============================================================
+
+const CANVAS_WIDTH = CANVAS.width;
+const CANVAS_HEIGHT = CANVAS.height;
+const GROUND_HEIGHT = PHYSICS.groundHeight;
+const GROUND_Y = PHYSICS.groundY;
+const CHARACTER_X = CHARACTER.x;
+const CHARACTER_SIZE = CHARACTER.size;
+const INITIAL_JUMP_VELOCITY = PHYSICS.jumpVelocity;
+const GRAVITY = PHYSICS.gravity;
+const OBSTACLE_WIDTH = OBSTACLE.width;
+const OBSTACLE_MIN_GAP = OBSTACLE.minGap;
+const INITIAL_OBSTACLE_SPEED = SPEED.initial;
+const MAX_OBSTACLE_SPEED = SPEED.max;
+const SPEED_INCREMENT = SPEED.increment;
+const SPEED_INCREMENT_SCORE = SPEED.incrementScore;
+
+// Legacy colors object for backward compatibility (exported for external use)
+// eslint-disable-next-line no-unused-vars
+const COLORS = TOKENS.colors;
+
+// ============================================================
 // DOM ELEMENTS
 // ============================================================
 
@@ -423,22 +189,16 @@ const finalScoreEl = document.getElementById('final-score');
 const gameOverHighScoreEl = document.getElementById('game-over-high-score');
 const newHighScoreBadge = document.getElementById('new-high-score-badge');
 const playAgainBtn = document.getElementById('play-again-btn');
-const mainMenuBtn = document.getElementById('main-menu-btn');
 const startHighScoreEl = document.getElementById('start-high-score');
-const currentScoreEl = document.getElementById('current-score');
-const hudHighScoreEl = document.getElementById('hud-high-score');
-const gameHud = document.getElementById('game-hud');
 
 // ============================================================
-// GAME STATE MANAGER
+// GAME STATE
 // ============================================================
 
-const stateMachine = new StateMachine();
-const gameLoop = new GameLoop();
-
+let gameState = 'start'; // 'start', 'playing', 'gameover'
 let score = 0;
 let highScore = 0;
-let obstacleSpeed = SPEED.initial;
+let obstacleSpeed = INITIAL_OBSTACLE_SPEED;
 let obstacles = [];
 
 // Parallax background layers
@@ -449,8 +209,8 @@ let bgLayers = [
 
 // Character state
 const character = {
-    x: CHARACTER.x,
-    y: PHYSICS.groundY - CHARACTER.size,
+    x: CHARACTER_X,
+    y: GROUND_Y - CHARACTER_SIZE,
     width: CHARACTER.width,
     height: CHARACTER.height,
     velocityY: 0,
@@ -465,64 +225,9 @@ const character = {
 
 function init() {
     loadHighScore();
+    displayStartScreen();
     setupEventListeners();
-    setupStateMachine();
-    setupGameLoop();
-
-    // Start with start screen visible
-    showStartScreen();
-
-    // Start the game loop
-    gameLoop.start();
-}
-
-function setupStateMachine() {
-    // START state - show start screen
-    stateMachine.onEnter(GameState.START, () => {
-        showStartScreen();
-    });
-
-    // PLAYING state - hide overlays, reset game
-    stateMachine.onEnter(GameState.PLAYING, () => {
-        hideAllScreens();
-        resetGame();
-    });
-
-    // GAME_OVER state - show game over screen
-    stateMachine.onEnter(GameState.GAME_OVER, () => {
-        updateGameOverScreen();
-        showGameOverScreen();
-    });
-
-    // Transition: START -> PLAYING
-    stateMachine.onTransition(GameState.START, GameState.PLAYING, () => {
-        console.log('Game started!');
-    });
-
-    // Transition: PLAYING -> GAME_OVER
-    stateMachine.onTransition(GameState.PLAYING, GameState.GAME_OVER, () => {
-        console.log('Game over!');
-    });
-
-    // Transition: GAME_OVER -> START
-    stateMachine.onTransition(GameState.GAME_OVER, GameState.START, () => {
-        console.log('Returning to menu');
-    });
-
-    // Transition: GAME_OVER -> PLAYING (restart)
-    stateMachine.onTransition(GameState.GAME_OVER, GameState.PLAYING, () => {
-        console.log('Game restarted!');
-    });
-}
-
-function setupGameLoop() {
-    gameLoop.onUpdate((deltaTime) => {
-        update(deltaTime);
-    });
-
-    gameLoop.onRender(() => {
-        render();
-    });
+    requestAnimationFrame(gameLoop);
 }
 
 function loadHighScore() {
@@ -532,6 +237,14 @@ function loadHighScore() {
 
 function saveHighScore() {
     localStorage.setItem(STORAGE.highScore, highScore.toString());
+}
+
+function displayStartScreen() {
+    if (highScore > 0) {
+        startHighScoreEl.textContent = `HIGH SCORE: ${highScore.toString().padStart(6, '0')}`;
+    } else {
+        startHighScoreEl.textContent = '';
+    }
 }
 
 function setupEventListeners() {
@@ -551,130 +264,110 @@ function setupEventListeners() {
     canvas.addEventListener('click', handleInput);
 
     // Play again button
-    playAgainBtn.addEventListener('click', () => {
-        stateMachine.transition(GameState.PLAYING);
-    });
-
-    // Main menu button
-    mainMenuBtn.addEventListener('click', () => {
-        stateMachine.transition(GameState.START);
-    });
+    playAgainBtn.addEventListener('click', restartGame);
 }
 
 function handleInput() {
-    if (stateMachine.is(GameState.START)) {
-        stateMachine.transition(GameState.PLAYING);
-    } else if (stateMachine.is(GameState.PLAYING) && !character.isJumping) {
+    if (gameState === 'start') {
+        startGame();
+    } else if (gameState === 'playing' && !character.isJumping) {
         jump();
-    } else if (stateMachine.is(GameState.GAME_OVER)) {
-        stateMachine.transition(GameState.PLAYING);
     }
+}
+
+function startGame() {
+    gameState = 'playing';
+    startScreen.classList.add('hidden');
+    gameOverScreen.classList.add('hidden');
+    resetGame();
 }
 
 function resetGame() {
     score = 0;
-    obstacleSpeed = SPEED.initial;
+    obstacleSpeed = INITIAL_OBSTACLE_SPEED;
     obstacles = [];
-    character.y = PHYSICS.groundY - CHARACTER.size;
+    lastObstacleX = CANVAS_WIDTH;
+    character.y = GROUND_Y - CHARACTER_SIZE;
     character.velocityY = 0;
     character.isJumping = false;
     character.squash = 1;
     character.stretch = 1;
     bgLayers.forEach(layer => { layer.x = 0; });
-    updateHud();
 }
 
 function jump() {
-    character.velocityY = PHYSICS.jumpVelocity;
+    character.velocityY = INITIAL_JUMP_VELOCITY;
     character.isJumping = true;
     character.squash = CHARACTER.squashFactor;
     character.stretch = CHARACTER.stretchFactor;
 }
 
-function showStartScreen() {
-    hideAllScreens();
-    startScreen.classList.remove('hidden');
-    if (highScore > 0) {
-        startHighScoreEl.textContent = highScore.toString().padStart(6, '0');
-        startHighScoreEl.parentElement.style.display = 'block';
-    } else {
-        startHighScoreEl.parentElement.style.display = 'none';
-    }
+function restartGame() {
+    startGame();
 }
 
-function showGameOverScreen() {
-    gameOverScreen.classList.remove('hidden');
-}
+function gameOver() {
+    gameState = 'gameover';
 
-function hideAllScreens() {
-    startScreen.classList.add('hidden');
-    gameOverScreen.classList.add('hidden');
-}
-
-function updateGameOverScreen() {
+    // Update high score
     const isNewHighScore = score > highScore;
     if (isNewHighScore) {
         highScore = score;
         saveHighScore();
     }
 
-    finalScoreEl.textContent = score.toString().padStart(6, '0');
-    gameOverHighScoreEl.textContent = highScore.toString().padStart(6, '0');
+    // Update game over screen
+    finalScoreEl.textContent = score;
+    gameOverHighScoreEl.textContent = highScore;
 
     if (isNewHighScore && score > 0) {
         newHighScoreBadge.classList.remove('hidden');
     } else {
         newHighScoreBadge.classList.add('hidden');
     }
-}
 
-function updateHud() {
-    if (currentScoreEl) {
-        currentScoreEl.textContent = score.toString().padStart(6, '0');
-    }
-    if (hudHighScoreEl) {
-        hudHighScoreEl.textContent = highScore.toString().padStart(6, '0');
-    }
-}
-
-function triggerGameOver() {
-    stateMachine.transition(GameState.GAME_OVER);
+    gameOverScreen.classList.remove('hidden');
 }
 
 // ============================================================
-// GAME LOOP UPDATE
+// GAME LOOP
 // ============================================================
 
-function update(deltaTime) {
-    // Update character squash/stretch animation (always runs)
-    character.squash += (1 - character.squash) * CHARACTER.returnSpeed;
-    character.stretch += (1 - character.stretch) * CHARACTER.returnSpeed;
+function gameLoop() {
+    update();
+    render();
+    requestAnimationFrame(gameLoop);
+}
 
-    // Update background (runs in all states for visual continuity)
-    bgLayers.forEach(layer => {
-        layer.x -= layer.speed;
-        if (layer.x <= -CANVAS.width) {
-            layer.x = 0;
-        }
-    });
+function update() {
+    if (gameState !== 'playing') return;
 
-    // Only update game logic when playing
-    if (!stateMachine.is(GameState.PLAYING)) return;
-
-    // Update character physics
+    // Update character
     if (character.isJumping) {
-        character.velocityY += PHYSICS.gravity;
+        character.velocityY += GRAVITY;
         character.y += character.velocityY;
 
         // Landing
-        if (character.y >= PHYSICS.groundY - CHARACTER.size) {
-            character.y = PHYSICS.groundY - CHARACTER.size;
+        if (character.y >= GROUND_Y - CHARACTER_SIZE) {
+            character.y = GROUND_Y - CHARACTER_SIZE;
             character.velocityY = 0;
             character.isJumping = false;
             character.squash = CHARACTER.stretchFactor;
             character.stretch = CHARACTER.squashFactor;
         }
     }
+
+    // Animate squash/stretch back to normal
+    character.squash += (1 - character.squash) * CHARACTER.returnSpeed;
+    character.stretch += (1 - character.stretch) * CHARACTER.returnSpeed;
+
+    // Update background
+    bgLayers.forEach(layer => {
+        layer.x -= layer.speed;
+        if (layer.x <= -CANVAS_WIDTH) {
+            layer.x = 0;
+        }
+    });
 
     // Update obstacles
     updateObstacles();
@@ -684,12 +377,9 @@ function update(deltaTime) {
 
     // Update speed based on score
     obstacleSpeed = Math.min(
-        SPEED.initial + Math.floor(score / SPEED.incrementScore) * SPEED.increment,
-        SPEED.max
+        INITIAL_OBSTACLE_SPEED + Math.floor(score / SPEED_INCREMENT_SCORE) * SPEED_INCREMENT,
+        MAX_OBSTACLE_SPEED
     );
-
-    // Update HUD
-    updateHud();
 }
 
 function updateObstacles() {
@@ -704,15 +394,15 @@ function updateObstacles() {
     // Spawn new obstacles
     const rightmostX = obstacles.length > 0
         ? Math.max(...obstacles.map(o => o.x + o.width))
-        : CANVAS.width;
+        : CANVAS_WIDTH;
 
-    if (rightmostX < CANVAS.width - OBSTACLE.minGap - Math.random() * 200) {
+    if (rightmostX < CANVAS_WIDTH - OBSTACLE_MIN_GAP - Math.random() * 200) {
         spawnObstacle();
     }
 
     // Update score for passed obstacles
     obstacles.forEach(obstacle => {
-        if (!obstacle.passed && obstacle.x + obstacle.width < CHARACTER.x) {
+        if (!obstacle.passed && obstacle.x + obstacle.width < CHARACTER_X) {
             obstacle.passed = true;
             score++;
         }
@@ -723,9 +413,9 @@ function spawnObstacle() {
     const height = OBSTACLE.heights[Math.floor(Math.random() * OBSTACLE.heights.length)];
 
     obstacles.push({
-        x: CANVAS.width,
-        y: PHYSICS.groundY - height,
-        width: OBSTACLE.width,
+        x: CANVAS_WIDTH,
+        y: GROUND_Y - height,
+        width: OBSTACLE_WIDTH,
         height: height,
         passed: false
     });
@@ -751,7 +441,7 @@ function checkCollision() {
             charBox.x + charBox.width > obsBox.x &&
             charBox.y < obsBox.y + obsBox.height &&
             charBox.y + charBox.height > obsBox.y) {
-            triggerGameOver();
+            gameOver();
             return;
         }
     }
@@ -764,28 +454,28 @@ function checkCollision() {
 function render() {
     // Clear canvas
     ctx.fillStyle = TOKENS.colors.backgroundGradientStart;
-    ctx.fillRect(0, 0, CANVAS.width, CANVAS.height);
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     // Draw gradient background
-    const gradient = ctx.createLinearGradient(0, 0, 0, CANVAS.height);
+    const gradient = ctx.createLinearGradient(0, 0, 0, CANVAS_HEIGHT);
     gradient.addColorStop(0, TOKENS.colors.backgroundGradientStart);
     gradient.addColorStop(1, TOKENS.colors.backgroundGradientEnd);
     ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, CANVAS.width, CANVAS.height);
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     // Draw parallax background
     drawBackground();
 
     // Draw ground
     ctx.fillStyle = TOKENS.colors.ground;
-    ctx.fillRect(0, PHYSICS.groundY, CANVAS.width, PHYSICS.groundHeight);
+    ctx.fillRect(0, GROUND_Y, CANVAS_WIDTH, GROUND_HEIGHT);
 
     // Draw ground line
     ctx.strokeStyle = TOKENS.colors.groundLine;
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(0, PHYSICS.groundY);
-    ctx.lineTo(CANVAS.width, PHYSICS.groundY);
+    ctx.moveTo(0, GROUND_Y);
+    ctx.lineTo(CANVAS_WIDTH, GROUND_Y);
     ctx.stroke();
 
     // Draw obstacles
@@ -809,8 +499,8 @@ function render() {
     // Draw character
     drawCharacter();
 
-    // Draw HUD when playing (behind the DOM HUD, but just in case)
-    if (stateMachine.is(GameState.PLAYING)) {
+    // Draw score (during gameplay)
+    if (gameState === 'playing') {
         drawScore();
     }
 }
@@ -821,8 +511,8 @@ function drawBackground() {
     const farOffset = bgLayers[0].x;
     for (let i = 0; i < PARALLAX.mountainCount; i++) {
         const x = farOffset + (i * PARALLAX.mountainSpacing);
-        drawMountain(x, PHYSICS.groundY - 100, 150, 120);
-        drawMountain(x + 200, PHYSICS.groundY - 80, 100, 80);
+        drawMountain(x, GROUND_Y - 100, 150, 120);
+        drawMountain(x + 200, GROUND_Y - 80, 100, 80);
     }
 
     // Near layer (ground details)
@@ -830,7 +520,7 @@ function drawBackground() {
     const nearOffset = bgLayers[1].x;
     for (let i = 0; i < PARALLAX.detailCount; i++) {
         const x = nearOffset + (i * PARALLAX.detailSpacing);
-        ctx.fillRect(x, PHYSICS.groundY - 20, 40, 20);
+        ctx.fillRect(x, GROUND_Y - 20, 40, 20);
     }
 }
 
@@ -881,7 +571,7 @@ function drawScore() {
     ctx.fillStyle = TOKENS.colors.textPrimary;
     ctx.font = `${TOKENS.typography.sizeScore} ${TOKENS.typography.fontMono}`;
     ctx.textAlign = 'right';
-    ctx.fillText(`Score: ${score}`, CANVAS.width - SCORE.padding, SCORE.yPosition);
+    ctx.fillText(`Score: ${score}`, CANVAS_WIDTH - SCORE.padding, SCORE.yPosition);
 
     // High score
     ctx.fillStyle = TOKENS.colors.highScore;
