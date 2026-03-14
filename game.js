@@ -479,17 +479,20 @@ function init() {
 function setupStateMachine() {
     // START state - show start screen
     stateMachine.onEnter(GameState.START, () => {
+        hideAllScreens();
         showStartScreen();
     });
 
-    // PLAYING state - hide overlays, reset game
+    // PLAYING state - hide overlays, show HUD, reset game
     stateMachine.onEnter(GameState.PLAYING, () => {
         hideAllScreens();
+        showHud();
         resetGame();
     });
 
-    // GAME_OVER state - show game over screen
+    // GAME_OVER state - hide HUD, show game over screen
     stateMachine.onEnter(GameState.GAME_OVER, () => {
+        hideHud();
         updateGameOverScreen();
         showGameOverScreen();
     });
@@ -609,6 +612,19 @@ function showGameOverScreen() {
 function hideAllScreens() {
     startScreen.classList.add('hidden');
     gameOverScreen.classList.add('hidden');
+    hideHud();
+}
+
+function showHud() {
+    if (gameHud) {
+        gameHud.classList.remove('hidden');
+    }
+}
+
+function hideHud() {
+    if (gameHud) {
+        gameHud.classList.add('hidden');
+    }
 }
 
 function updateGameOverScreen() {
