@@ -133,8 +133,8 @@ const SPEED = {
 /** @type {Object} Background parallax settings */
 const PARALLAX = {
     layers: [
-        { speed: 0.5, color: '#0f1525' }, // Far layer (mountains)
-        { speed: 1, color: '#0a1a2e' }    // Near layer (ground details)
+        { speed: 0.3, color: '#0f1525' }, // Far layer (mountains)
+        { speed: 0.6, color: '#0a1a2e' }    // Near layer (ground details)
     ],
     mountainCount: 3,
     detailCount: 4,
@@ -210,6 +210,7 @@ let score = 0;
 let highScore = 0;
 let obstacleSpeed = SPEED.initial;
 let obstacles = [];
+let lastObstacleX = CANVAS_WIDTH;
 
 // Parallax background layers
 let bgLayers = [
@@ -308,10 +309,12 @@ function saveHighScore() {
 }
 
 function displayStartScreen() {
+    const highScoreDisplay = startHighScoreEl.closest('.high-score-display');
     if (highScore > 0) {
-        startHighScoreEl.textContent = `HIGH SCORE: ${highScore.toString().padStart(6, '0')}`;
+        highScoreDisplay.style.display = 'block';
+        startHighScoreEl.textContent = highScore.toString().padStart(6, '0');
     } else {
-        startHighScoreEl.textContent = '';
+        highScoreDisplay.style.display = 'none';
     }
 }
 
@@ -577,8 +580,11 @@ function drawBackground() {
     const farOffset = bgLayers[0].x;
     for (let i = 0; i < PARALLAX.mountainCount; i++) {
         const x = farOffset + (i * PARALLAX.mountainSpacing);
-        drawMountain(x, GROUND_Y - 100, 150, 120);
-        drawMountain(x + 200, GROUND_Y - 80, 100, 80);
+        // Mountain heights vary (80-140px) for organic feel
+        const height1 = 80 + Math.random() * 60;
+        const height2 = 80 + Math.random() * 60;
+        drawMountain(x, GROUND_Y - 100, 150, height1);
+        drawMountain(x + 200, GROUND_Y - 80, 100, height2);
     }
 
     // Near layer (ground details)
@@ -586,7 +592,9 @@ function drawBackground() {
     const nearOffset = bgLayers[1].x;
     for (let i = 0; i < PARALLAX.detailCount; i++) {
         const x = nearOffset + (i * PARALLAX.detailSpacing);
-        ctx.fillRect(x, GROUND_Y - 20, 40, 20);
+        // Buildings have varied heights (40-120px)
+        const height = 40 + Math.random() * 80;
+        ctx.fillRect(x, GROUND_Y - height, 40, height);
     }
 }
 
