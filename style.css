@@ -111,96 +111,6 @@ body {
 }
 
 /* ============================================================
-   GAME HUD - Stitch Gameplay HUD Design
-   ============================================================ */
-
-.hud {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: var(--spacing-lg);
-    z-index: 10;
-}
-
-.hud.hidden {
-    display: none;
-}
-
-.hud-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    width: 100%;
-}
-
-.hud-score-section {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-}
-
-.hud-score-right {
-    align-items: flex-end;
-}
-
-.hud-label {
-    font-family: var(--font-mono);
-    font-size: var(--font-size-small);
-    color: var(--color-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-}
-
-.hud-label-primary {
-    color: var(--color-primary);
-    font-weight: 700;
-}
-
-.hud-value {
-    font-family: var(--font-mono);
-    font-size: var(--font-size-score);
-    color: var(--color-text-primary);
-    font-weight: 700;
-    letter-spacing: 0.05em;
-}
-
-.hud-value-large {
-    font-size: 32px;
-}
-
-.hud-controls {
-    display: flex;
-    justify-content: center;
-    opacity: 0.5;
-}
-
-.hud-control-hint {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--color-text-primary);
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    text-transform: uppercase;
-}
-
-.hud-control-hint .material-symbols-outlined {
-    font-size: 16px;
-}
-
-.hud-divider {
-    color: var(--color-primary);
-    opacity: 0.5;
-    margin: 0 var(--spacing-sm);
-}
-
-/* ============================================================
    SCREENS (Start & Game Over)
    ============================================================ */
 
@@ -218,7 +128,6 @@ body {
     border-radius: var(--radius-lg);
     color: var(--color-text-primary);
     text-align: center;
-    z-index: 20;
 }
 
 .screen.hidden {
@@ -237,7 +146,7 @@ body {
 #start-screen .logo-container {
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: var(--spacing-md);
     margin-bottom: var(--spacing-xl);
     color: var(--color-primary);
 }
@@ -339,147 +248,55 @@ body {
 }
 
 /* ============================================================
-   GAME OVER SCREEN - Stitch Design Implementation
+   GAME OVER SCREEN
    ============================================================ */
-
-#game-over-screen {
-    background: rgba(11, 12, 16, 0.9);
-}
-
-.game-over-overlay {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: var(--spacing-xl);
-}
-
-.game-over-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-lg);
-    max-width: 600px;
-    width: 100%;
-    padding: var(--spacing-xxl);
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(10px);
-    border-radius: var(--radius-xl);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-}
-
-.game-over-header {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-    color: var(--color-text-primary);
-    margin-bottom: var(--spacing-sm);
-}
-
-.game-over-header .game-icon {
-    font-size: 32px;
-    color: var(--color-primary);
-}
-
-.game-over-header h2 {
-    font-family: var(--font-display);
-    font-size: var(--font-size-body);
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-}
 
 #game-over-screen h1 {
     font-family: var(--font-display);
-    font-size: clamp(48px, 10vw, 72px);
+    font-size: clamp(36px, 8vw, 56px);
     font-weight: 700;
     color: var(--color-primary);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    margin-bottom: var(--spacing-md);
+    text-shadow: 0 0 20px var(--color-primary-glow);
+    margin-bottom: var(--spacing-lg);
+    letter-spacing: 0.1em;
 }
 
-.glitch-text {
-    text-shadow:
-        2px 0 0 rgba(0, 255, 255, 0.7),
-        -2px 0 0 rgba(255, 0, 255, 0.7);
-    animation: glitch 0.3s ease-in-out infinite alternate;
-}
-
-@keyframes glitch {
-    from {
-        text-shadow:
-            2px 0 0 rgba(0, 255, 255, 0.7),
-            -2px 0 0 rgba(255, 0, 255, 0.7);
-    }
-    to {
-        text-shadow:
-            -2px 0 0 rgba(0, 255, 255, 0.7),
-            2px 0 0 rgba(255, 0, 255, 0.7);
-    }
-}
-
-.score-section {
+#game-over-screen .score-section {
     display: flex;
-    flex-direction: row;
-    gap: var(--spacing-lg);
+    flex-direction: column;
+    gap: var(--spacing-md);
     margin: var(--spacing-lg) 0;
-    width: 100%;
-    justify-content: center;
-    flex-wrap: wrap;
 }
 
-.score-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+#game-over-screen .score-card {
+    background: var(--color-primary-light);
+    border: 1px solid var(--color-primary-border);
     border-radius: var(--radius-xl);
-    padding: var(--spacing-lg) var(--spacing-xl);
-    min-width: 160px;
+    padding: var(--spacing-lg);
+    min-width: 200px;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.score-card.high-score {
-    background: var(--color-primary-light);
-    border: 1px solid var(--color-primary-border);
-}
-
-.score-card .score-label {
+#game-over-screen .score-card .score-label {
     font-family: var(--font-display);
     font-size: var(--font-size-small);
     color: var(--color-text-secondary);
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    margin-bottom: var(--spacing-sm);
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-xs);
 }
 
-.score-card.high-score .score-label {
-    color: var(--color-primary);
-    font-weight: 700;
-}
-
-.score-card .score-label .material-symbols-outlined {
-    font-size: 16px;
-}
-
-.score-card .score-value {
+#game-over-screen .score-card .score-value {
     font-family: var(--font-mono);
     font-size: var(--font-size-title);
     font-weight: 700;
     color: var(--color-text-primary);
-    letter-spacing: 0.1em;
 }
 
-.score-card.high-score .score-value {
-    color: var(--color-primary);
-    text-shadow: 0 0 8px rgba(233, 68, 95, 0.5);
+#game-over-screen .score-card.high-score .score-value {
+    color: var(--color-high-score);
 }
 
 #new-high-score-badge {
@@ -489,13 +306,6 @@ body {
     text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
     animation: glow 0.5s ease-in-out infinite alternate;
     margin-top: var(--spacing-sm);
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-}
-
-#new-high-score-badge .material-symbols-outlined {
-    font-size: 24px;
 }
 
 @keyframes glow {
@@ -503,84 +313,35 @@ body {
     to { text-shadow: 0 0 20px rgba(255, 215, 0, 1); }
 }
 
-.game-over-actions {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
-    margin-top: var(--spacing-lg);
-    width: 100%;
-    max-width: 320px;
-}
+/* ============================================================
+   BUTTONS
+   ============================================================ */
 
-.btn-primary {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-sm);
-    width: 100%;
-    padding: var(--spacing-md) var(--spacing-lg);
+#play-again-btn {
+    margin-top: var(--spacing-xl);
+    padding: var(--spacing-md) var(--spacing-xxl);
     font-family: var(--font-display);
     font-size: var(--font-size-button);
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
     background: var(--color-primary);
     color: var(--color-text-primary);
-    border: 2px solid var(--color-primary);
-    border-radius: var(--radius-full);
+    border: none;
+    border-radius: var(--radius-lg);
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 0 20px rgba(233, 68, 95, 0.4);
-    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
 }
 
-.btn-primary::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.2), transparent);
+#play-again-btn:hover {
+    background: var(--color-primary);
+    filter: brightness(1.2);
+    transform: scale(1.05);
+    box-shadow: 0 0 20px var(--color-primary-glow);
 }
 
-.btn-primary:hover {
-    background: rgba(244, 51, 37, 0.9);
-    box-shadow: 0 0 30px rgba(233, 68, 95, 0.6);
-    transform: scale(1.02);
-}
-
-.btn-primary:active {
+#play-again-btn:active {
     transform: scale(0.98);
-}
-
-.btn-secondary {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm) var(--spacing-md);
-    font-family: var(--font-display);
-    font-size: var(--font-size-small);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    background: transparent;
-    color: var(--color-text-secondary);
-    border: none;
-    cursor: pointer;
-    transition: color 0.2s ease;
-}
-
-.btn-secondary:hover {
-    color: var(--color-text-primary);
-}
-
-.insert-coin {
-    font-family: var(--font-display);
-    font-size: 12px;
-    color: var(--color-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    margin-top: var(--spacing-lg);
 }
 
 /* ============================================================
@@ -595,10 +356,7 @@ body {
     display: none !important;
 }
 
-/* ============================================================
-   RESPONSIVE ADJUSTMENTS
-   ============================================================ */
-
+/* Responsive adjustments */
 @media (max-width: 600px) {
     #game-container {
         margin: var(--spacing-md);
@@ -613,28 +371,6 @@ body {
     }
 
     #game-over-screen h1 {
-        font-size: 40px;
-    }
-
-    .game-over-content {
-        padding: var(--spacing-lg);
-    }
-
-    .score-section {
-        flex-direction: column;
-        gap: var(--spacing-md);
-    }
-
-    .score-card {
-        min-width: auto;
-        width: 100%;
-    }
-
-    .hud-value-large {
-        font-size: 24px;
-    }
-
-    .hud-label {
-        font-size: 10px;
+        font-size: 32px;
     }
 }
