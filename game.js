@@ -664,15 +664,16 @@ function triggerGameOver() {
 function update(deltaTime) {
     // Update character squash/stretch animation (always runs)
     // Use deltaTime for frame-rate independent animation
-    const animSpeed = CHARACTER.returnSpeed * (deltaTime * 60); // Normalize to 60fps
+    const dtFactor = deltaTime * 60; // Factor to normalize movement to 60 FPS
+    const animSpeed = CHARACTER.returnSpeed * dtFactor;
     character.squash += (1 - character.squash) * animSpeed;
     character.stretch += (1 - character.stretch) * animSpeed;
 
     // Update background (runs in all states for visual continuity)
     bgLayers.forEach(layer => {
-        layer.x -= layer.speed;
+        layer.x -= (layer.speed * obstacleSpeed) * dtFactor;
         if (layer.x <= -CANVAS.width) {
-            layer.x = 0;
+            layer.x += CANVAS.width;
         }
     });
 
@@ -681,8 +682,8 @@ function update(deltaTime) {
 
     // Update character physics
     if (character.isJumping) {
-        character.velocityY += PHYSICS.gravity;
-        character.y += character.velocityY;
+        character.velocityY += PHYSICS.gravity * dtFactor;
+        character.y += character.velocityY * dtFactor;
 
         // Landing
         if (character.y >= PHYSICS.groundY - CHARACTER.size) {
@@ -695,7 +696,7 @@ function update(deltaTime) {
     }
 
     // Update obstacles
-    updateObstacles();
+    updateObstacles(dtFactor);
 
     // Check collision
     checkCollision();
@@ -710,10 +711,10 @@ function update(deltaTime) {
     updateHud();
 }
 
-function updateObstacles() {
+function updateObstacles(dtFactor) {
     // Move existing obstacles
     obstacles.forEach(obstacle => {
-        obstacle.x -= obstacleSpeed;
+        obstacle.x -= obstacleSpeed * dtFactor;
     });
 
     // Remove off-screen obstacles
