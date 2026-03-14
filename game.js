@@ -190,16 +190,7 @@ const gameOverHighScoreEl = document.getElementById('game-over-high-score');
 const newHighScoreBadge = document.getElementById('new-high-score-badge');
 const playAgainBtn = document.getElementById('play-again-btn');
 const startHighScoreEl = document.getElementById('start-high-score');
-const currentScoreEl = document.getElementById('current-score');
-const hudHighScoreEl = document.getElementById('hud-high-score');
-const gameHud = document.getElementById('game-hud');
-
-// ============================================================
-// GAME STATE MANAGER
-// ============================================================
-
-const stateMachine = new StateMachine();
-const gameLoop = new GameLoop();
+const menuBtn = document.getElementById('menu-btn');
 
 // ============================================================
 // GAME STATE
@@ -336,6 +327,16 @@ function setupEventListeners() {
 
     // Play again button
     playAgainBtn.addEventListener('click', restartGame);
+
+    // Menu button
+    if (menuBtn) {
+        menuBtn.addEventListener('click', () => {
+            gameState = 'start';
+            gameOverScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+            displayStartScreen();
+        });
+    }
 }
 
 function handleInput() {

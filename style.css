@@ -347,6 +347,51 @@ body {
     transform: scale(0.98);
 }
 
+#menu-btn {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-xxl);
+    font-family: var(--font-display);
+    font-size: var(--font-size-button);
+    font-weight: 700;
+    background: transparent;
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-text-secondary);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+}
+
+#menu-btn:hover {
+    background: var(--color-primary-light);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+#menu-btn .material-symbols-outlined {
+    vertical-align: middle;
+    margin-right: var(--spacing-xs);
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+#play-again-btn .material-symbols-outlined {
+    vertical-align: middle;
+    margin-right: var(--spacing-xs);
+}
+
+.trophy-icon {
+    font-size: var(--font-size-title);
+    color: var(--color-high-score);
+    margin-top: var(--spacing-sm);
+}
+
 /* ============================================================
    UTILITY CLASSES
    ============================================================ */
