@@ -48,7 +48,6 @@ describe('US-008: UI Screens and Input Handling', () => {
 
         test('Title is centered using CSS flexbox layout', () => {
             const startScreen = document.getElementById('start-screen');
-            const style = window.getComputedStyle(startScreen);
             // Check flexbox centering properties
             expect(startScreen.classList.contains('screen')).toBe(true);
         });
@@ -272,7 +271,6 @@ describe('US-008: CSS Animation Requirements', () => {
         testEl.className = 'pulse';
         document.body.appendChild(testEl);
 
-        const computedStyle = window.getComputedStyle(testEl);
         expect(testEl.classList.contains('pulse')).toBe(true);
     });
 });

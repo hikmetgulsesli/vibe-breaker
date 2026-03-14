@@ -656,7 +656,8 @@ function triggerGameOver() {
 // GAME LOOP UPDATE
 // ============================================================
 
-function update(deltaTime) {
+// eslint-disable-next-line no-unused-vars
+function update(_deltaTime) {
     // Update character squash/stretch animation (always runs)
     character.squash += (1 - character.squash) * CHARACTER.returnSpeed;
     character.stretch += (1 - character.stretch) * CHARACTER.returnSpeed;
