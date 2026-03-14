@@ -189,9 +189,10 @@ const finalScoreEl = document.getElementById('final-score');
 const gameOverHighScoreEl = document.getElementById('game-over-high-score');
 const newHighScoreBadge = document.getElementById('new-high-score-badge');
 const playAgainBtn = document.getElementById('play-again-btn');
+const mainMenuBtn = document.getElementById('main-menu-btn');
 const startHighScoreEl = document.getElementById('start-high-score');
 const gameHudEl = document.getElementById('game-hud');
-const hudScoreEl = document.getElementById('hud-score');
+const hudScoreEl = document.getElementById('current-score');
 const hudHighScoreEl = document.getElementById('hud-high-score');
 
 // ============================================================
@@ -268,6 +269,16 @@ function setupEventListeners() {
 
     // Play again button
     playAgainBtn.addEventListener('click', restartGame);
+    
+    // Main menu button
+    if (mainMenuBtn) {
+        mainMenuBtn.addEventListener('click', () => {
+            gameState = 'start';
+            gameOverScreen.classList.add('hidden');
+            gameHudEl.classList.add('hidden');
+            displayStartScreen();
+        });
+    }
 }
 
 function handleInput() {
@@ -320,8 +331,8 @@ function gameOver() {
     }
 
     // Update game over screen
-    finalScoreEl.textContent = score;
-    gameOverHighScoreEl.textContent = highScore;
+    finalScoreEl.textContent = score.toString().padStart(6, '0');
+    gameOverHighScoreEl.textContent = highScore.toString().padStart(6, '0');
 
     if (isNewHighScore && score > 0) {
         newHighScoreBadge.classList.remove('hidden');
