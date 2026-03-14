@@ -2,6 +2,269 @@
 // ===================================
 
 // ============================================================
+// GAME STATE MACHINE
+// ============================================================
+
+/**
+ * @readonly
+ * @enum {string}
+ */
+const GameState = Object.freeze({
+    START: 'START',
+    PLAYING: 'PLAYING',
+    GAME_OVER: 'GAME_OVER'
+});
+
+/**
+ * State transition rules
+ * @type {Object.<GameState, GameState[]>}
+ */
+const STATE_TRANSITIONS = Object.freeze({
+    [GameState.START]: [GameState.PLAYING],
+    [GameState.PLAYING]: [GameState.GAME_OVER],
+    [GameState.GAME_OVER]: [GameState.START, GameState.PLAYING]
+});
+
+/**
+ * Game State Machine
+ * Manages game state transitions and validation
+ */
+class StateMachine {
+    constructor() {
+        /** @type {GameState} */
+        this._state = GameState.START;
+        /** @type {number} */
+        this._stateStartTime = performance.now();
+        /** @type {Map<GameState, Function[]>} */
+        this._listeners = new Map();
+        /** @type {Map<string, Function>} */
+        this._transitionListeners = new Map();
+    }
+
+    /**
+     * Get current state
+     * @returns {GameState}
+     */
+    get state() {
+        return this._state;
+    }
+
+    /**
+     * Get time spent in current state (ms)
+     * @returns {number}
+     */
+    get stateDuration() {
+        return performance.now() - this._stateStartTime;
+    }
+
+    /**
+     * Check if transition is valid
+     * @param {GameState} fromState
+     * @param {GameState} toState
+     * @returns {boolean}
+     */
+    isValidTransition(fromState, toState) {
+        const allowedTransitions = STATE_TRANSITIONS[fromState];
+        return allowedTransitions && allowedTransitions.includes(toState);
+    }
+
+    /**
+     * Transition to new state
+     * @param {GameState} newState
+     * @returns {boolean} - true if transition succeeded
+     */
+    transition(newState) {
+        if (!this.isValidTransition(this._state, newState)) {
+            console.warn(`Invalid state transition: ${this._state} -> ${newState}`);
+            return false;
+        }
+
+        const previousState = this._state;
+        this._state = newState;
+        this._stateStartTime = performance.now();
+
+        // Notify transition listeners
+        const transitionKey = `${previousState}->${newState}`;
+        const transitionListener = this._transitionListeners.get(transitionKey);
+        if (transitionListener) {
+            transitionListener(previousState, newState);
+        }
+
+        // Notify state listeners
+        const listeners = this._listeners.get(newState) || [];
+        listeners.forEach(callback => callback(newState, previousState));
+
+        return true;
+    }
+
+    /**
+     * Add listener for state entry
+     * @param {GameState} state
+     * @param {Function} callback
+     */
+    onEnter(state, callback) {
+        if (!this._listeners.has(state)) {
+            this._listeners.set(state, []);
+        }
+        this._listeners.get(state).push(callback);
+    }
+
+    /**
+     * Add listener for specific transition
+     * @param {GameState} fromState
+     * @param {GameState} toState
+     * @param {Function} callback
+     */
+    onTransition(fromState, toState, callback) {
+        const key = `${fromState}->${toState}`;
+        this._transitionListeners.set(key, callback);
+    }
+
+    /**
+     * Check if current state matches
+     * @param {GameState} state
+     * @returns {boolean}
+     */
+    is(state) {
+        return this._state === state;
+    }
+}
+
+// Create global instances
+const stateMachine = new StateMachine();
+
+// ============================================================
+// GAME LOOP WITH DELTA TIME
+// ============================================================
+
+/**
+ * Game Loop Manager
+ * Handles requestAnimationFrame with delta time calculation
+ */
+class GameLoop {
+    constructor() {
+        /** @type {number|null} */
+        this._animationFrameId = null;
+        /** @type {number} */
+        this._lastTimestamp = 0;
+        /** @type {number} */
+        this._deltaTime = 0;
+        /** @type {number} */
+        this._fps = 0;
+        /** @type {number} */
+        this._frameCount = 0;
+        /** @type {number} */
+        this._fpsUpdateTime = 0;
+        /** @type {Function|null} */
+        this._updateCallback = null;
+        /** @type {Function|null} */
+        this._renderCallback = null;
+        /** @type {boolean} */
+        this._isRunning = false;
+        /** @type {number} */
+        this._targetFPS = 60;
+        /** @type {number} */
+        this._targetFrameTime = 1000 / 60;
+    }
+
+    /**
+     * Get current delta time in seconds
+     * @returns {number}
+     */
+    get deltaTime() {
+        return this._deltaTime;
+    }
+
+    /**
+     * Get current FPS
+     * @returns {number}
+     */
+    get fps() {
+        return this._fps;
+    }
+
+    /**
+     * Set update callback
+     * @param {Function} callback - receives deltaTime in seconds
+     */
+    onUpdate(callback) {
+        this._updateCallback = callback;
+    }
+
+    /**
+     * Set render callback
+     * @param {Function} callback
+     */
+    onRender(callback) {
+        this._renderCallback = callback;
+    }
+
+    /**
+     * Start the game loop
+     */
+    start() {
+        if (this._isRunning) return;
+        this._isRunning = true;
+        this._lastTimestamp = performance.now();
+        this._fpsUpdateTime = this._lastTimestamp;
+        this._frameCount = 0;
+        this._animationFrameId = requestAnimationFrame((timestamp) => this._loop(timestamp));
+    }
+
+    /**
+     * Stop the game loop
+     */
+    stop() {
+        this._isRunning = false;
+        if (this._animationFrameId !== null) {
+            cancelAnimationFrame(this._animationFrameId);
+            this._animationFrameId = null;
+        }
+    }
+
+    /**
+     * Main game loop
+     * @param {number} timestamp
+     */
+    _loop(timestamp) {
+        if (!this._isRunning) return;
+
+        // Calculate delta time
+        this._deltaTime = (timestamp - this._lastTimestamp) / 1000;
+        this._lastTimestamp = timestamp;
+
+        // Calculate FPS
+        this._frameCount++;
+        if (timestamp - this._fpsUpdateTime >= 1000) {
+            this._fps = this._frameCount;
+            this._frameCount = 0;
+            this._fpsUpdateTime = timestamp;
+        }
+
+        // Cap delta time to prevent huge jumps
+        if (this._deltaTime > 0.1) {
+            this._deltaTime = 0.1;
+        }
+
+        // Call update callback with delta time
+        if (this._updateCallback) {
+            this._updateCallback(this._deltaTime);
+        }
+
+        // Call render callback
+        if (this._renderCallback) {
+            this._renderCallback();
+        }
+
+        // Continue loop
+        this._animationFrameId = requestAnimationFrame((ts) => this._loop(ts));
+    }
+}
+
+// Create global instance
+const gameLoop = new GameLoop();
+
+// ============================================================
 // DESIGN TOKENS - Colors, Typography, Spacing
 // From Stitch design-tokens.css and PRD Section 5.1
 // ============================================================
@@ -185,12 +448,15 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const startScreen = document.getElementById('start-screen');
 const gameOverScreen = document.getElementById('game-over-screen');
+const gameHud = document.getElementById('game-hud');
 const finalScoreEl = document.getElementById('final-score');
 const gameOverHighScoreEl = document.getElementById('game-over-high-score');
 const newHighScoreBadge = document.getElementById('new-high-score-badge');
 const playAgainBtn = document.getElementById('play-again-btn');
 const startHighScoreEl = document.getElementById('start-high-score');
 const mainMenuBtn = document.getElementById('main-menu-btn');
+const currentScoreEl = document.getElementById('current-score');
+const hudHighScoreEl = document.getElementById('hud-high-score');
 
 // ============================================================
 // GAME STATE
@@ -220,6 +486,73 @@ const character = {
     squash: 1,
     stretch: 1
 };
+
+// ============================================================
+// SCREEN MANAGEMENT
+// ============================================================
+
+function showStartScreen() {
+    hideAllScreens();
+    startScreen.classList.remove('hidden');
+    if (highScore > 0) {
+        startHighScoreEl.textContent = highScore.toString().padStart(6, '0');
+        startHighScoreEl.parentElement.style.display = 'block';
+    } else {
+        startHighScoreEl.parentElement.style.display = 'none';
+    }
+}
+
+function showGameOverScreen() {
+    gameOverScreen.classList.remove('hidden');
+}
+
+function hideAllScreens() {
+    startScreen.classList.add('hidden');
+    gameOverScreen.classList.add('hidden');
+    hideHud();
+}
+
+function showHud() {
+    if (gameHud) {
+        gameHud.classList.remove('hidden');
+    }
+}
+
+function hideHud() {
+    if (gameHud) {
+        gameHud.classList.add('hidden');
+    }
+}
+
+function updateGameOverScreen() {
+    const isNewHighScore = score > highScore;
+    if (isNewHighScore) {
+        highScore = score;
+        saveHighScore();
+    }
+
+    finalScoreEl.textContent = score.toString().padStart(6, '0');
+    gameOverHighScoreEl.textContent = highScore.toString().padStart(6, '0');
+
+    if (isNewHighScore && score > 0) {
+        newHighScoreBadge.classList.remove('hidden');
+    } else {
+        newHighScoreBadge.classList.add('hidden');
+    }
+}
+
+function updateHud() {
+    if (currentScoreEl) {
+        currentScoreEl.textContent = score.toString().padStart(6, '0');
+    }
+    if (hudHighScoreEl) {
+        hudHighScoreEl.textContent = highScore.toString().padStart(6, '0');
+    }
+}
+
+function triggerGameOver() {
+    stateMachine.transition(GameState.GAME_OVER);
+}
 
 // ============================================================
 // INITIALIZATION
@@ -397,16 +730,10 @@ function gameOver() {
 }
 
 // ============================================================
-// GAME LOOP
+// UPDATE AND RENDER
 // ============================================================
 
-function gameLoop() {
-    update();
-    render();
-    requestAnimationFrame(gameLoop);
-}
-
-function update() {
+function update(dt) {
     if (gameState !== 'playing') return;
 
     // Update character
@@ -437,7 +764,9 @@ function update() {
     });
 
     // Update obstacles
-    updateObstacles();
+    // dt is in seconds, convert to frame factor (assume 60fps baseline)
+    const dtFactor = dt !== undefined ? dt * 60 : 1;
+    updateObstacles(dtFactor);
 
     // Check collision
     checkCollision();
