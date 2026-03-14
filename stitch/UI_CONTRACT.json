@@ -1,0 +1,137 @@
+[
+  {
+    "screenId": "86f9513f990f4f39a87e84b3bdf3db51",
+    "screenTitle": "Vibe-Breaker Start Screen - Retro Arcade",
+    "deviceType": "DESKTOP",
+    "elements": [
+      {
+        "type": "button",
+        "label": "[icon: sports_esports]",
+        "line": 40
+      }
+    ],
+    "navigation": [],
+    "buttons": [
+      {
+        "type": "button",
+        "label": "[icon: sports_esports]",
+        "line": 40
+      }
+    ],
+    "inputs": [],
+    "hardcodedData": [],
+    "totalInteractive": 1,
+    "requiresRouter": false,
+    "requiresDragDrop": false
+  },
+  {
+    "screenId": "8a2baeca3f184208b3f641210eefbf67",
+    "screenTitle": "Vibe-Breaker Gameplay HUD Screen",
+    "deviceType": "DESKTOP",
+    "elements": [
+      {
+        "type": "button",
+        "label": "[icon: keyboard_arrow_up]",
+        "line": 77
+      },
+      {
+        "type": "button",
+        "label": "[icon: keyboard_arrow_down]",
+        "line": 79
+      }
+    ],
+    "navigation": [],
+    "buttons": [
+      {
+        "type": "button",
+        "label": "[icon: keyboard_arrow_up]",
+        "line": 77
+      },
+      {
+        "type": "button",
+        "label": "[icon: keyboard_arrow_down]",
+        "line": 79
+      }
+    ],
+    "inputs": [],
+    "hardcodedData": [],
+    "totalInteractive": 2,
+    "requiresRouter": false,
+    "requiresDragDrop": false
+  },
+  {
+    "screenId": "a3c77b09aa1b48069c88562206efbff9",
+    "screenTitle": "Vibe-Breaker Game Over Screen",
+    "deviceType": "DESKTOP",
+    "elements": [
+      {
+        "type": "button",
+        "label": "replay\nRestart",
+        "line": 83
+      },
+      {
+        "type": "button",
+        "label": "menu\n                            Return to Main Menu",
+        "line": 90
+      },
+      {
+        "type": "button",
+        "label": "[icon: sports_esports]",
+        "line": 53
+      },
+      {
+        "type": "button",
+        "label": "[icon: trophy]",
+        "line": 75
+      },
+      {
+        "type": "button",
+        "label": "[icon: replay]",
+        "line": 86
+      },
+      {
+        "type": "button",
+        "label": "[icon: menu]",
+        "line": 91
+      }
+    ],
+    "navigation": [],
+    "buttons": [
+      {
+        "type": "button",
+        "label": "replay\nRestart",
+        "line": 83
+      },
+      {
+        "type": "button",
+        "label": "menu\n                            Return to Main Menu",
+        "line": 90
+      },
+      {
+        "type": "button",
+        "label": "[icon: sports_esports]",
+        "line": 53
+      },
+      {
+        "type": "button",
+        "label": "[icon: trophy]",
+        "line": 75
+      },
+      {
+        "type": "button",
+        "label": "[icon: replay]",
+        "line": 86
+      },
+      {
+        "type": "button",
+        "label": "[icon: menu]",
+        "line": 91
+      }
+    ],
+    "inputs": [],
+    "hardcodedData": [],
+    "totalInteractive": 6,
+    "requiresRouter": false,
+    "requiresDragDrop": false
+  }
+]

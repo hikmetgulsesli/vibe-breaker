@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe-Breaker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
+        <div id="start-screen" class="screen">
+            <h1>VIBE-BREAKER</h1>
+            <p id="start-high-score"></p>
+            <p class="pulse">Press SPACE or TAP to Start</p>
+        </div>
+        <div id="game-over-screen" class="screen hidden">
+            <h1>GAME OVER</h1>
+            <p>Score: <span id="final-score">0</span></p>
+            <p>High Score: <span id="game-over-high-score">0</span></p>
+            <p id="new-high-score-badge" class="hidden">NEW!</p>
+            <button id="play-again-btn">Play Again</button>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
