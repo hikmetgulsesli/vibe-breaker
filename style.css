@@ -111,101 +111,6 @@ body {
 }
 
 /* ============================================================
-   GAME HUD - Stitch Design Implementation
-   ============================================================ */
-
-.hud {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    pointer-events: none;
-    border-radius: var(--radius-lg);
-    z-index: 10;
-}
-
-.hud.hidden {
-    display: none;
-}
-
-.hud-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: var(--spacing-lg) var(--spacing-xl);
-    width: 100%;
-}
-
-.hud-score-section {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-}
-
-.hud-score-right {
-    align-items: flex-end;
-}
-
-.hud-label {
-    font-family: var(--font-mono);
-    font-size: var(--font-size-small);
-    color: var(--color-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    opacity: 0.7;
-}
-
-.hud-label-primary {
-    color: var(--color-primary);
-    font-weight: 700;
-    opacity: 1;
-}
-
-.hud-value {
-    font-family: var(--font-mono);
-    font-size: var(--font-size-score);
-    font-weight: 700;
-    color: var(--color-text-primary);
-    letter-spacing: 0.1em;
-}
-
-.hud-value-large {
-    font-size: 32px;
-}
-
-.hud-controls {
-    display: flex;
-    justify-content: center;
-    padding-bottom: var(--spacing-xl);
-    opacity: 0.5;
-}
-
-.hud-control-hint {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--color-text-primary);
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-}
-
-.hud-control-hint .material-symbols-outlined {
-    font-size: 16px;
-}
-
-.hud-divider {
-    color: var(--color-primary);
-    opacity: 0.5;
-    margin: 0 var(--spacing-md);
-}
-
-/* ============================================================
    SCREENS (Start & Game Over)
    ============================================================ */
 
@@ -490,11 +395,6 @@ body {
     font-family: var(--font-material);
 }
 
-@keyframes glow {
-    from { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-    to { text-shadow: 0 0 20px rgba(255, 215, 0, 1); }
-}
-
 #game-over-screen .game-over-actions {
     display: flex;
     flex-direction: column;
@@ -511,6 +411,13 @@ body {
     text-transform: uppercase;
     margin-top: var(--spacing-lg);
 }
+    margin-top: var(--spacing-sm);
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+    to { text-shadow: 0 0 20px rgba(255, 215, 0, 1); }
+}
 
 /* ============================================================
    GAME HUD - Stitch Design Implementation
@@ -524,48 +431,40 @@ body {
     height: 100%;
     pointer-events: none;
     padding: var(--spacing-lg);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    z-index: 10;
 }
 
-#game-hud.hidden {
-    display: none;
-}
-
-.hud-header {
+#game-hud .hud-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     width: 100%;
-    padding: var(--spacing-md) var(--spacing-lg);
 }
 
-.hud-score-section {
+#game-hud .hud-score-section {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
 }
 
-.hud-score-right {
+#game-hud .hud-score-section.hud-score-right {
     align-items: flex-end;
 }
 
-.hud-label {
+#game-hud .hud-label {
     font-family: var(--font-mono);
     font-size: var(--font-size-small);
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--color-text-secondary);
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    font-weight: 700;
 }
 
-.hud-label-primary {
+#game-hud .hud-label.hud-label-primary {
     color: var(--color-primary);
     font-weight: 700;
 }
 
-.hud-value {
+#game-hud .hud-value {
     font-family: var(--font-mono);
     font-size: var(--font-size-score);
     font-weight: 700;
@@ -573,33 +472,44 @@ body {
     letter-spacing: 0.1em;
 }
 
-.hud-value-large {
-    font-size: 32px;
+#game-hud .hud-value.hud-value-large {
+    font-size: var(--font-size-title);
+    color: var(--color-primary);
+    text-shadow: 0 0 10px var(--color-primary-glow);
 }
 
-.hud-controls {
+#game-hud .hud-controls {
+    position: absolute;
+    bottom: var(--spacing-lg);
+    left: 0;
+    right: 0;
     display: flex;
     justify-content: center;
-    padding-bottom: var(--spacing-lg);
 }
 
-.hud-control-hint {
+#game-hud .hud-control-hint {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
     font-family: var(--font-mono);
     font-size: var(--font-size-small);
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--color-text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.5;
+}
+
+#game-hud .hud-control-key {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
-    letter-spacing: 0.05em;
+    color: var(--color-primary);
+    font-weight: 700;
 }
 
-.hud-control-hint .material-symbols-outlined {
-    font-family: var(--font-material);
-    font-size: 16px;
-}
-
-.hud-divider {
-    color: rgba(244, 51, 37, 0.5);
+#game-hud .hud-divider {
+    color: var(--color-primary);
+    opacity: 0.5;
     margin: 0 var(--spacing-md);
 }
 
@@ -607,73 +517,55 @@ body {
    BUTTONS
    ============================================================ */
 
-#play-again-btn,
-#main-menu-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-sm);
+.btn-primary,
+#play-again-btn {
+    margin-top: var(--spacing-xl);
+    padding: var(--spacing-md) var(--spacing-xxl);
     font-family: var(--font-display);
+    font-size: var(--font-size-button);
     font-weight: 700;
+    background: var(--color-primary);
+    color: var(--color-text-primary);
+    border: none;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+}
+
+.btn-primary:hover,
+#play-again-btn:hover {
+    background: var(--color-primary);
+    filter: brightness(1.2);
+    transform: scale(1.05);
+    box-shadow: 0 0 20px var(--color-primary-glow);
+}
+
+.btn-primary:active,
+#play-again-btn:active {
+    transform: scale(0.98);
+}
+
+.btn-secondary,
+#main-menu-btn {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-family: var(--font-display);
+    font-size: var(--font-size-body);
+    font-weight: 700;
+    background: transparent;
+    color: var(--color-text-secondary);
+    border: none;
     cursor: pointer;
     transition: all 0.2s ease;
     text-transform: uppercase;
     letter-spacing: 0.1em;
 }
 
-#play-again-btn {
-    width: 100%;
-    max-width: 320px;
-    padding: var(--spacing-md) var(--spacing-xxl);
-    font-size: var(--font-size-button);
-    background: var(--color-primary);
-    color: var(--color-text-primary);
-    border: 2px solid var(--color-primary);
-    border-radius: var(--radius-full);
-    box-shadow: 0 0 20px rgba(244, 51, 37, 0.4);
-    position: relative;
-    overflow: hidden;
-}
-
-#play-again-btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.2), transparent);
-    pointer-events: none;
-}
-
-#play-again-btn:hover {
-    background: var(--color-primary);
-    filter: brightness(1.1);
-    box-shadow: 0 0 30px rgba(244, 51, 37, 0.6);
-    transform: translateY(-1px);
-}
-
-#play-again-btn:active {
-    transform: scale(0.98);
-}
-
-#play-again-btn .material-symbols-outlined {
-    font-family: var(--font-material);
-}
-
-#main-menu-btn {
-    padding: var(--spacing-sm) var(--spacing-lg);
-    font-size: var(--font-size-small);
-    background: transparent;
-    color: var(--color-text-secondary);
-    border: none;
-    margin-top: var(--spacing-sm);
-}
-
+.btn-secondary:hover,
 #main-menu-btn:hover {
     color: var(--color-text-primary);
-}
-
-#main-menu-btn .material-symbols-outlined {
-    font-family: var(--font-material);
-    font-size: 20px;
 }
 
 /* ============================================================
