@@ -479,17 +479,20 @@ function init() {
 function setupStateMachine() {
     // START state - show start screen
     stateMachine.onEnter(GameState.START, () => {
+        hideGameHud();
         showStartScreen();
     });
 
-    // PLAYING state - hide overlays, reset game
+    // PLAYING state - hide overlays, reset game, show HUD
     stateMachine.onEnter(GameState.PLAYING, () => {
         hideAllScreens();
+        showGameHud();
         resetGame();
     });
 
-    // GAME_OVER state - show game over screen
+    // GAME_OVER state - show game over screen, hide HUD
     stateMachine.onEnter(GameState.GAME_OVER, () => {
+        hideGameHud();
         updateGameOverScreen();
         showGameOverScreen();
     });
@@ -611,6 +614,14 @@ function hideAllScreens() {
     gameOverScreen.classList.add('hidden');
 }
 
+function showGameHud() {
+    gameHud.classList.remove('hidden');
+}
+
+function hideGameHud() {
+    gameHud.classList.add('hidden');
+}
+
 function updateGameOverScreen() {
     const isNewHighScore = score > highScore;
     if (isNewHighScore) {
@@ -645,7 +656,7 @@ function triggerGameOver() {
 // GAME LOOP UPDATE
 // ============================================================
 
-function update(deltaTime) {
+function update(_deltaTime) {
     // Update character squash/stretch animation (always runs)
     character.squash += (1 - character.squash) * CHARACTER.returnSpeed;
     character.stretch += (1 - character.stretch) * CHARACTER.returnSpeed;
