@@ -248,100 +248,35 @@ body {
 }
 
 /* ============================================================
-   GAME OVER SCREEN - Stitch Design Implementation
+   GAME OVER SCREEN
    ============================================================ */
-
-#game-over-screen {
-    background: rgba(11, 12, 16, 0.8);
-}
-
-#game-over-screen .game-over-overlay {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: var(--spacing-xl);
-}
-
-#game-over-screen .game-over-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-xl);
-    max-width: 600px;
-    width: 100%;
-    padding: var(--spacing-xxl);
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(4px);
-    border-radius: var(--radius-xl);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-}
-
-#game-over-screen .game-over-header {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-    color: var(--color-text-primary);
-    margin-bottom: var(--spacing-sm);
-}
-
-#game-over-screen .game-over-header .game-icon {
-    font-family: var(--font-material);
-    font-size: 32px;
-    color: var(--color-primary);
-}
-
-#game-over-screen .game-over-header h2 {
-    font-family: var(--font-display);
-    font-size: var(--font-size-body);
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--color-text-primary);
-}
 
 #game-over-screen h1 {
     font-family: var(--font-display);
-    font-size: clamp(48px, 10vw, 72px);
+    font-size: clamp(36px, 8vw, 56px);
     font-weight: 700;
     color: var(--color-primary);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    margin-bottom: var(--spacing-sm);
-    text-shadow: 
-        2px 0 0 rgba(0, 255, 255, 0.5),
-        -2px 0 0 rgba(255, 0, 255, 0.5);
+    text-shadow: 0 0 20px var(--color-primary-glow);
+    margin-bottom: var(--spacing-lg);
+    letter-spacing: 0.1em;
 }
 
 #game-over-screen .score-section {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
-    gap: var(--spacing-lg);
+    flex-direction: column;
+    gap: var(--spacing-md);
     margin: var(--spacing-lg) 0;
-    width: 100%;
-    flex-wrap: wrap;
 }
 
 #game-over-screen .score-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--color-primary-light);
+    border: 1px solid var(--color-primary-border);
     border-radius: var(--radius-xl);
-    padding: var(--spacing-lg) var(--spacing-xl);
-    min-width: 180px;
+    padding: var(--spacing-lg);
+    min-width: 200px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    flex: 1;
-    max-width: 250px;
-}
-
-#game-over-screen .score-card.high-score {
-    background: var(--color-primary-light);
-    border: 1px solid var(--color-primary-border);
 }
 
 #game-over-screen .score-card .score-label {
@@ -350,20 +285,7 @@ body {
     color: var(--color-text-secondary);
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    margin-bottom: var(--spacing-sm);
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-}
-
-#game-over-screen .score-card.high-score .score-label {
-    color: var(--color-primary);
-}
-
-#game-over-screen .score-card .score-label .material-symbols-outlined {
-    font-family: var(--font-material);
-    font-size: 14px;
+    margin-bottom: var(--spacing-xs);
 }
 
 #game-over-screen .score-card .score-value {
@@ -371,18 +293,13 @@ body {
     font-size: var(--font-size-title);
     font-weight: 700;
     color: var(--color-text-primary);
-    letter-spacing: 0.1em;
 }
 
 #game-over-screen .score-card.high-score .score-value {
-    color: var(--color-primary);
-    text-shadow: 0 0 8px rgba(244, 51, 37, 0.5);
+    color: var(--color-high-score);
 }
 
 #new-high-score-badge {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
     color: var(--color-high-score);
     font-size: var(--font-size-score);
     font-weight: 700;
@@ -391,27 +308,8 @@ body {
     margin-top: var(--spacing-sm);
 }
 
-#new-high-score-badge .material-symbols-outlined {
-    font-family: var(--font-material);
-}
-
-#game-over-screen .game-over-actions {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-md);
-    margin-top: var(--spacing-lg);
-    width: 100%;
-}
-
-#game-over-screen .insert-coin {
-    color: var(--color-text-muted);
-    font-size: var(--font-size-small);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    margin-top: var(--spacing-lg);
-}
-    margin-top: var(--spacing-sm);
+#new-high-score-badge.hidden {
+    display: none;
 }
 
 @keyframes glow {
@@ -420,104 +318,9 @@ body {
 }
 
 /* ============================================================
-   GAME HUD - Stitch Design Implementation
-   ============================================================ */
-
-#game-hud {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    padding: var(--spacing-lg);
-    z-index: 10;
-}
-
-#game-hud .hud-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    width: 100%;
-}
-
-#game-hud .hud-score-section {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-}
-
-#game-hud .hud-score-section.hud-score-right {
-    align-items: flex-end;
-}
-
-#game-hud .hud-label {
-    font-family: var(--font-mono);
-    font-size: var(--font-size-small);
-    color: var(--color-text-secondary);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-}
-
-#game-hud .hud-label.hud-label-primary {
-    color: var(--color-primary);
-    font-weight: 700;
-}
-
-#game-hud .hud-value {
-    font-family: var(--font-mono);
-    font-size: var(--font-size-score);
-    font-weight: 700;
-    color: var(--color-text-primary);
-    letter-spacing: 0.1em;
-}
-
-#game-hud .hud-value.hud-value-large {
-    font-size: var(--font-size-title);
-    color: var(--color-primary);
-    text-shadow: 0 0 10px var(--color-primary-glow);
-}
-
-#game-hud .hud-controls {
-    position: absolute;
-    bottom: var(--spacing-lg);
-    left: 0;
-    right: 0;
-    display: flex;
-    justify-content: center;
-}
-
-#game-hud .hud-control-hint {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    font-family: var(--font-mono);
-    font-size: var(--font-size-small);
-    color: var(--color-text-muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    opacity: 0.5;
-}
-
-#game-hud .hud-control-key {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    color: var(--color-primary);
-    font-weight: 700;
-}
-
-#game-hud .hud-divider {
-    color: var(--color-primary);
-    opacity: 0.5;
-    margin: 0 var(--spacing-md);
-}
-
-/* ============================================================
    BUTTONS
    ============================================================ */
 
-.btn-primary,
 #play-again-btn {
     margin-top: var(--spacing-xl);
     padding: var(--spacing-md) var(--spacing-xxl);
@@ -534,38 +337,14 @@ body {
     letter-spacing: 0.15em;
 }
 
-.btn-primary:hover,
 #play-again-btn:hover {
-    background: var(--color-primary);
-    filter: brightness(1.2);
+    background: #ff6b6b;
     transform: scale(1.05);
     box-shadow: 0 0 20px var(--color-primary-glow);
 }
 
-.btn-primary:active,
 #play-again-btn:active {
     transform: scale(0.98);
-}
-
-.btn-secondary,
-#main-menu-btn {
-    margin-top: var(--spacing-md);
-    padding: var(--spacing-md) var(--spacing-xl);
-    font-family: var(--font-display);
-    font-size: var(--font-size-body);
-    font-weight: 700;
-    background: transparent;
-    color: var(--color-text-secondary);
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-}
-
-.btn-secondary:hover,
-#main-menu-btn:hover {
-    color: var(--color-text-primary);
 }
 
 /* ============================================================
@@ -574,10 +353,6 @@ body {
 
 .neon-text {
     text-shadow: 0 0 5px var(--color-primary-glow), 0 0 20px rgba(244, 51, 37, 0.3);
-}
-
-.hidden {
-    display: none !important;
 }
 
 /* Responsive adjustments */
