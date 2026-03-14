@@ -308,10 +308,6 @@ body {
     margin-top: var(--spacing-sm);
 }
 
-#new-high-score-badge.hidden {
-    display: none;
-}
-
 @keyframes glow {
     from { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
     to { text-shadow: 0 0 20px rgba(255, 215, 0, 1); }
@@ -338,7 +334,8 @@ body {
 }
 
 #play-again-btn:hover {
-    background: #ff6b6b;
+    background: var(--color-primary);
+    filter: brightness(1.2);
     transform: scale(1.05);
     box-shadow: 0 0 20px var(--color-primary-glow);
 }
@@ -353,6 +350,10 @@ body {
 
 .neon-text {
     text-shadow: 0 0 5px var(--color-primary-glow), 0 0 20px rgba(244, 51, 37, 0.3);
+}
+
+.hidden {
+    display: none !important;
 }
 
 /* Responsive adjustments */
