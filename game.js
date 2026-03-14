@@ -19,14 +19,14 @@ const SPEED_INCREMENT_SCORE = 10;
 
 // Colors
 const COLORS = {
-    background1: '#1a1a2e',
-    background2: '#16213e',
-    ground: '#0f3460',
-    character: '#e94560',
-    obstacle1: '#533483',
-    obstacle2: '#7952b3',
-    text: '#ffffff',
-    highScore: '#ffd700'
+    background1: '#0f172a',
+    background2: '#1e1b4b',
+    ground: '#1e293b',
+    character: '#f43325',
+    obstacle1: '#7c3aed',
+    obstacle2: '#a855f7',
+    text: '#f1f5f9',
+    highScore: '#f43325'
 };
 
 // DOM elements
@@ -38,6 +38,7 @@ const finalScoreEl = document.getElementById('final-score');
 const gameOverHighScoreEl = document.getElementById('game-over-high-score');
 const newHighScoreBadge = document.getElementById('new-high-score-badge');
 const playAgainBtn = document.getElementById('play-again-btn');
+const mainMenuBtn = document.getElementById('main-menu-btn');
 const startHighScoreEl = document.getElementById('start-high-score');
 
 // Game state
@@ -46,7 +47,6 @@ let score = 0;
 let highScore = 0;
 let obstacleSpeed = INITIAL_OBSTACLE_SPEED;
 let obstacles = [];
-let lastObstacleX = CANVAS_WIDTH;
 
 // Parallax background layers
 let bgLayers = [
@@ -84,11 +84,7 @@ function saveHighScore() {
 }
 
 function displayStartScreen() {
-    if (highScore > 0) {
-        startHighScoreEl.textContent = `High Score: ${highScore}`;
-    } else {
-        startHighScoreEl.textContent = '';
-    }
+    startHighScoreEl.textContent = highScore.toString().padStart(6, '0');
 }
 
 function setupEventListeners() {
@@ -109,6 +105,9 @@ function setupEventListeners() {
 
     // Play again button
     playAgainBtn.addEventListener('click', restartGame);
+    
+    // Main menu button
+    mainMenuBtn.addEventListener('click', returnToMainMenu);
 }
 
 function handleInput() {
@@ -130,7 +129,6 @@ function resetGame() {
     score = 0;
     obstacleSpeed = INITIAL_OBSTACLE_SPEED;
     obstacles = [];
-    lastObstacleX = CANVAS_WIDTH;
     character.y = GROUND_Y - CHARACTER_SIZE;
     character.velocityY = 0;
     character.isJumping = false;
@@ -148,6 +146,13 @@ function jump() {
 
 function restartGame() {
     startGame();
+}
+
+function returnToMainMenu() {
+    gameState = 'start';
+    gameOverScreen.classList.add('hidden');
+    startScreen.classList.remove('hidden');
+    displayStartScreen();
 }
 
 function gameOver() {
@@ -308,7 +313,7 @@ function render() {
     ctx.fillRect(0, GROUND_Y, CANVAS_WIDTH, GROUND_HEIGHT);
     
     // Draw ground line
-    ctx.strokeStyle = '#1a4a7a';
+    ctx.strokeStyle = '#334155';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(0, GROUND_Y);
@@ -328,7 +333,7 @@ function render() {
         ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
         
         // Obstacle border
-        ctx.strokeStyle = '#9b6dd3';
+        ctx.strokeStyle = '#c084fc';
         ctx.lineWidth = 2;
         ctx.strokeRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
     });
@@ -382,11 +387,11 @@ function drawCharacter() {
     // Character body
     ctx.fillStyle = COLORS.character;
     ctx.beginPath();
-    ctx.roundRect(character.x, character.y, character.width, character.height, 8);
+    roundRect(ctx, character.x, character.y, character.width, character.height, 8);
     ctx.fill();
     
     // Character outline
-    ctx.strokeStyle = '#ff8fa3';
+    ctx.strokeStyle = '#ff7b73';
     ctx.lineWidth = 2;
     ctx.stroke();
     
@@ -406,7 +411,7 @@ function drawCharacter() {
 function drawScore() {
     // Current score
     ctx.fillStyle = COLORS.text;
-    ctx.font = '24px "Courier New", monospace';
+    ctx.font = '24px "Space Grotesk", sans-serif';
     ctx.textAlign = 'right';
     ctx.fillText(`Score: ${score}`, CANVAS_WIDTH - 20, 35);
     
@@ -416,20 +421,18 @@ function drawScore() {
     ctx.fillText(`Best: ${highScore}`, 20, 35);
 }
 
-// Polyfill for roundRect if not supported
-if (!ctx.roundRect) {
-    ctx.roundRect = function(x, y, w, h, r) {
-        if (w < 2 * r) r = w / 2;
-        if (h < 2 * r) r = h / 2;
-        this.beginPath();
-        this.moveTo(x + r, y);
-        this.arcTo(x + w, y, x + w, y + h, r);
-        this.arcTo(x + w, y + h, x, y + h, r);
-        this.arcTo(x, y + h, x, y, r);
-        this.arcTo(x, y, x + w, y, r);
-        this.closePath();
-        return this;
-    };
+// Helper function for rounded rectangles
+function roundRect(ctx, x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+    return ctx;
 }
 
 // Start the game
