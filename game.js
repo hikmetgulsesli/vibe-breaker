@@ -190,7 +190,7 @@ const gameOverHighScoreEl = document.getElementById('game-over-high-score');
 const newHighScoreBadge = document.getElementById('new-high-score-badge');
 const playAgainBtn = document.getElementById('play-again-btn');
 const startHighScoreEl = document.getElementById('start-high-score');
-const menuBtn = document.getElementById('menu-btn');
+const mainMenuBtn = document.getElementById('main-menu-btn');
 
 // ============================================================
 // GAME STATE
@@ -329,8 +329,8 @@ function setupEventListeners() {
     playAgainBtn.addEventListener('click', restartGame);
 
     // Menu button
-    if (menuBtn) {
-        menuBtn.addEventListener('click', () => {
+    if (mainMenuBtn) {
+        mainMenuBtn.addEventListener('click', () => {
             gameState = 'start';
             gameOverScreen.classList.add('hidden');
             startScreen.classList.remove('hidden');
