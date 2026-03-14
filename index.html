@@ -3,59 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Vibe-Breaker - An endless runner arcade game">
-    <meta name="theme-color" content="#0f172a">
     <title>Vibe-Breaker</title>
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <!-- Styles -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="game-container">
+        <!-- Game Canvas -->
         <canvas id="gameCanvas" width="800" height="400"></canvas>
-        
-        <!-- Start Screen -->
+
+        <!-- Start Screen - Stitch Design Implementation -->
         <div id="start-screen" class="screen">
-            <div class="icon-gaming">🎮</div>
-            <h1>VIBE-BREAKER</h1>
-            <div class="high-score-box">
-                <p>High Score: <span id="start-high-score">0</span></p>
+            <!-- Logo Icon -->
+            <div class="logo-container">
+                <span class="logo-icon material-symbols-outlined">sports_esports</span>
             </div>
-            <h2 class="start-prompt pulse">
-                Press <span class="key-highlight">SPACE</span> to Start
-            </h2>
+
+            <!-- Main Content -->
+            <div class="content">
+                <!-- Title -->
+                <h1 class="neon-text">VIBE-BREAKER</h1>
+
+                <!-- High Score Display -->
+                <div class="high-score-display">
+                    <p>HIGH SCORE: <span class="score-value" id="start-high-score">000000</span></p>
+                </div>
+
+                <!-- Start Instruction -->
+                <div class="start-instruction">
+                    <h2 class="pulse">
+                        PRESS <span class="key-highlight">SPACE</span> TO START
+                    </h2>
+                </div>
+            </div>
+
+            <!-- Footer -->
             <footer>
-                <p>© 2024 VIBE-BREAKER STUDIOS</p>
+                <p>&copy; 2024 VIBE-BREAKER STUDIOS</p>
             </footer>
         </div>
-        
+
         <!-- Game Over Screen -->
         <div id="game-over-screen" class="screen hidden">
-            <div class="game-over-content">
-                <h1>GAME OVER</h1>
-                <div class="score-display">
-                    <div class="score-box">
-                        <h3>Score</h3>
-                        <div class="score-value" id="final-score">0</div>
-                    </div>
-                    <div class="score-box">
-                        <h3>High Score</h3>
-                        <div class="score-value" id="game-over-high-score">0</div>
-                    </div>
+            <h1>GAME OVER</h1>
+
+            <div class="score-section">
+                <div class="score-card">
+                    <span class="score-label">Score</span>
+                    <span class="score-value" id="final-score">0</span>
                 </div>
-                <p id="new-high-score-badge" class="new-high-score hidden">NEW HIGH SCORE!</p>
-                <div class="game-over-buttons">
-                    <button id="play-again-btn" class="btn btn-primary">
-                        <span>↻</span> Restart
-                    </button>
-                    <button id="main-menu-btn" class="btn btn-secondary">
-                        <span>☰</span> Return to Main Menu
-                    </button>
+
+                <div class="score-card high-score">
+                    <span class="score-label">High Score</span>
+                    <span class="score-value" id="game-over-high-score">0</span>
                 </div>
             </div>
+
+            <p id="new-high-score-badge" class="hidden">NEW HIGH SCORE!</p>
+
+            <button id="play-again-btn">Play Again</button>
         </div>
     </div>
+
+    <!-- Game Script -->
     <script src="game.js"></script>
 </body>
 </html>
