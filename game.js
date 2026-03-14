@@ -479,20 +479,20 @@ function init() {
 function setupStateMachine() {
     // START state - show start screen
     stateMachine.onEnter(GameState.START, () => {
-        hideGameHud();
+        hideAllScreens();
         showStartScreen();
     });
 
-    // PLAYING state - hide overlays, reset game, show HUD
+    // PLAYING state - hide overlays, show HUD, reset game
     stateMachine.onEnter(GameState.PLAYING, () => {
         hideAllScreens();
-        showGameHud();
+        showHud();
         resetGame();
     });
 
-    // GAME_OVER state - show game over screen, hide HUD
+    // GAME_OVER state - hide HUD, show game over screen
     stateMachine.onEnter(GameState.GAME_OVER, () => {
-        hideGameHud();
+        hideHud();
         updateGameOverScreen();
         showGameOverScreen();
     });
@@ -612,14 +612,19 @@ function showGameOverScreen() {
 function hideAllScreens() {
     startScreen.classList.add('hidden');
     gameOverScreen.classList.add('hidden');
+    hideHud();
 }
 
-function showGameHud() {
-    gameHud.classList.remove('hidden');
+function showHud() {
+    if (gameHud) {
+        gameHud.classList.remove('hidden');
+    }
 }
 
-function hideGameHud() {
-    gameHud.classList.add('hidden');
+function hideHud() {
+    if (gameHud) {
+        gameHud.classList.add('hidden');
+    }
 }
 
 function updateGameOverScreen() {
@@ -658,14 +663,17 @@ function triggerGameOver() {
 
 function update(deltaTime) {
     // Update character squash/stretch animation (always runs)
-    character.squash += (1 - character.squash) * CHARACTER.returnSpeed;
-    character.stretch += (1 - character.stretch) * CHARACTER.returnSpeed;
+    // Use deltaTime for frame-rate independent animation
+    const dtFactor = deltaTime * 60; // Factor to normalize movement to 60 FPS
+    const animSpeed = CHARACTER.returnSpeed * dtFactor;
+    character.squash += (1 - character.squash) * animSpeed;
+    character.stretch += (1 - character.stretch) * animSpeed;
 
     // Update background (runs in all states for visual continuity)
     bgLayers.forEach(layer => {
-        layer.x -= layer.speed;
+        layer.x -= (layer.speed * obstacleSpeed) * dtFactor;
         if (layer.x <= -CANVAS.width) {
-            layer.x = 0;
+            layer.x += CANVAS.width;
         }
     });
 
@@ -674,8 +682,8 @@ function update(deltaTime) {
 
     // Update character physics
     if (character.isJumping) {
-        character.velocityY += PHYSICS.gravity;
-        character.y += character.velocityY;
+        character.velocityY += PHYSICS.gravity * dtFactor;
+        character.y += character.velocityY * dtFactor;
 
         // Landing
         if (character.y >= PHYSICS.groundY - CHARACTER.size) {
@@ -688,7 +696,7 @@ function update(deltaTime) {
     }
 
     // Update obstacles
-    updateObstacles();
+    updateObstacles(dtFactor);
 
     // Check collision
     checkCollision();
@@ -703,10 +711,10 @@ function update(deltaTime) {
     updateHud();
 }
 
-function updateObstacles() {
+function updateObstacles(dtFactor) {
     // Move existing obstacles
     obstacles.forEach(obstacle => {
-        obstacle.x -= obstacleSpeed;
+        obstacle.x -= obstacleSpeed * dtFactor;
     });
 
     // Remove off-screen obstacles
