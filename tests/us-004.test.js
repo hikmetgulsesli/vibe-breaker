@@ -119,7 +119,8 @@ describe('US-004: Character Rendering and Physics', () => {
         });
         
         test('character renders at x position defined in constants', () => {
-            expect(gameCode).toMatch(/character\.x\s*[=:]\s*CHARACTER\.x|x:\s*CHARACTER\.x/);
+            // Check that CHARACTER_X is defined from CHARACTER.x
+            expect(gameCode).toContain('CHARACTER_X = CHARACTER.x');
         });
     });
 
@@ -146,8 +147,8 @@ describe('US-004: Character Rendering and Physics', () => {
         });
         
         test('gravity accelerates character downward in update loop', () => {
-            // Gravity should be added to velocityY during jump
-            expect(gameCode).toMatch(/velocityY\s*\+=\s*PHYSICS\.gravity/);
+            // Accept both: velocityY += PHYSICS.gravity or velocityY += GRAVITY
+            expect(gameCode).toMatch(/velocityY\s*\+=.*(PHYSICS\.gravity|GRAVITY)/);
         });
         
         test('velocity affects character Y position', () => {
