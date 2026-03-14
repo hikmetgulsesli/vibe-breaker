@@ -17,6 +17,29 @@
         <!-- Game Canvas -->
         <canvas id="gameCanvas" width="800" height="400"></canvas>
 
+        <!-- In-Game HUD -->
+        <div id="game-hud" class="hud hidden">
+            <div class="hud-header">
+                <div class="hud-score-section">
+                    <span class="hud-label">HIGH SCORE</span>
+                    <span class="hud-value" id="hud-high-score">000000</span>
+                </div>
+                <div class="hud-score-section hud-score-right">
+                    <span class="hud-label hud-label-primary">SCORE</span>
+                    <span class="hud-value hud-value-large" id="hud-score">000000</span>
+                </div>
+            </div>
+            <div class="hud-controls">
+                <span class="hud-control-hint">
+                    <span class="material-symbols-outlined">keyboard_arrow_up</span> JUMP
+                </span>
+                <span class="hud-divider">|</span>
+                <span class="hud-control-hint">
+                    <span class="material-symbols-outlined">keyboard_arrow_down</span> DUCK
+                </span>
+            </div>
+        </div>
+
         <!-- Start Screen - Stitch Design Implementation -->
         <div id="start-screen" class="screen">
             <!-- Logo Icon -->

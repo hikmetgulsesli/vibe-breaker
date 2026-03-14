@@ -190,6 +190,9 @@ const gameOverHighScoreEl = document.getElementById('game-over-high-score');
 const newHighScoreBadge = document.getElementById('new-high-score-badge');
 const playAgainBtn = document.getElementById('play-again-btn');
 const startHighScoreEl = document.getElementById('start-high-score');
+const gameHudEl = document.getElementById('game-hud');
+const hudScoreEl = document.getElementById('hud-score');
+const hudHighScoreEl = document.getElementById('hud-high-score');
 
 // ============================================================
 // GAME STATE
@@ -279,6 +282,7 @@ function startGame() {
     gameState = 'playing';
     startScreen.classList.add('hidden');
     gameOverScreen.classList.add('hidden');
+    gameHudEl.classList.remove('hidden');
     resetGame();
 }
 
@@ -286,7 +290,6 @@ function resetGame() {
     score = 0;
     obstacleSpeed = INITIAL_OBSTACLE_SPEED;
     obstacles = [];
-    lastObstacleX = CANVAS_WIDTH;
     character.y = GROUND_Y - CHARACTER_SIZE;
     character.velocityY = 0;
     character.isJumping = false;
@@ -327,25 +330,32 @@ function gameOver() {
     }
 
     gameOverScreen.classList.remove('hidden');
+    gameHudEl.classList.add('hidden');
 }
 
 // ============================================================
 // GAME LOOP
 // ============================================================
 
-function gameLoop() {
-    update();
+// Track time for frame-rate independent physics
+let lastTime = 0;
+
+function gameLoop(timestamp) {
+    const deltaTime = lastTime ? (timestamp - lastTime) / 16.67 : 1; // Normalized to 60fps (16.67ms per frame)
+    lastTime = timestamp;
+    
+    update(deltaTime);
     render();
     requestAnimationFrame(gameLoop);
 }
 
-function update() {
+function update(deltaTime) {
     if (gameState !== 'playing') return;
 
-    // Update character
+    // Update character (frame-rate independent)
     if (character.isJumping) {
-        character.velocityY += GRAVITY;
-        character.y += character.velocityY;
+        character.velocityY += GRAVITY * deltaTime;
+        character.y += character.velocityY * deltaTime;
 
         // Landing
         if (character.y >= GROUND_Y - CHARACTER_SIZE) {
@@ -357,20 +367,20 @@ function update() {
         }
     }
 
-    // Animate squash/stretch back to normal
-    character.squash += (1 - character.squash) * CHARACTER.returnSpeed;
-    character.stretch += (1 - character.stretch) * CHARACTER.returnSpeed;
+    // Animate squash/stretch back to normal (frame-rate independent)
+    character.squash += (1 - character.squash) * CHARACTER.returnSpeed * deltaTime;
+    character.stretch += (1 - character.stretch) * CHARACTER.returnSpeed * deltaTime;
 
-    // Update background
+    // Update background (frame-rate independent)
     bgLayers.forEach(layer => {
-        layer.x -= layer.speed;
+        layer.x -= layer.speed * deltaTime;
         if (layer.x <= -CANVAS_WIDTH) {
             layer.x = 0;
         }
     });
 
     // Update obstacles
-    updateObstacles();
+    updateObstacles(deltaTime);
 
     // Check collision
     checkCollision();
@@ -380,12 +390,18 @@ function update() {
         INITIAL_OBSTACLE_SPEED + Math.floor(score / SPEED_INCREMENT_SCORE) * SPEED_INCREMENT,
         MAX_OBSTACLE_SPEED
     );
+
+    // Update HUD
+    if (gameState === 'playing') {
+        hudScoreEl.textContent = score.toString().padStart(6, '0');
+        hudHighScoreEl.textContent = highScore.toString().padStart(6, '0');
+    }
 }
 
-function updateObstacles() {
-    // Move existing obstacles
+function updateObstacles(deltaTime) {
+    // Move existing obstacles (frame-rate independent)
     obstacles.forEach(obstacle => {
-        obstacle.x -= obstacleSpeed;
+        obstacle.x -= obstacleSpeed * deltaTime;
     });
 
     // Remove off-screen obstacles
